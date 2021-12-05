@@ -100,4 +100,6 @@ Then I used used the wireguard mobile-app and scaned the QR code output of my te
 [image]
 
 ## 13.
-Next I used this wireguard VPN on my Mac. I simply installed the Wireguard 
+Next I used this wireguard VPN on my Mac. I simply installed the Wireguard app from the MacOS appstore and added the details in a new tunnel, which then asked if I wanted to use it as a VPN and I said yes.
+I got the details by scanning the Pc1 QR code using my phone's camera instead of the Wireguard app, and it took me to a link that had all of the necessary details to create the tunnel:
+[image]
