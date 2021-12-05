@@ -1,37 +1,103 @@
-## Welcome to GitHub Pages
+### How I created a Cloud VPN with Docker, DigitalOcean, and WireGuard.
 
-You can use the [editor on GitHub](https://github.com/JulianAbhari/wireguard/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+## 1.
+I used digital ocean to create an Ubuntu server application.
+So the first step is to make a digital ocean account and make a new droplet with ubuntu as its OS.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## 2.
+With your droplet created you can access your droplet's console by pressing the button with three dots on the far right and then select to access the console.
+Now that you're in your droplet's console, we need to install docker before we can install wireguard, but to do that we have to install the necessary components for docker. Simply enter this command:
+`sudo apt install apt-transport-https ca-certificates curl software-properties-common -y`
 
-### Markdown
+## 3.
+Now to add the docker key
+`curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - `
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
 
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+## 4.
+After adding the docker key we can easily add the docker repo, but there are many different docker repos depending on your droplet's sytem. I'm using a basic 32 / 64 bit OS so this is the command I used:
+```
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
 ```
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+## 5.
+Now I finally installed docker using this command:
+`sudo apt install docker-ce -y`
 
-### Jekyll Themes
+## 6.
+Then I installed docker compose using this command:
+`sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose`
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/JulianAbhari/wireguard/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+## 7.
+Now to change the permission bit of docker compose to be easily executed:
+`sudo chmod +x /usr/local/bin/docker-compose`
 
-### Support or Contact
+## 8.
+Setup wireguard:
+```
+mkdir -p ~/wireguard/
+mkdir -p ~/wireguard/config/
+nano ~/wireguard/docker-compose.yml
+```
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+## 9.
+Now that we're editing the docker-compose.yml file, add these contents:
+```
+version: '3.8'
+services:
+  wireguard:
+    container_name: wireguard
+    image: linuxserver/wireguard
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+      - SERVERURL=147.182.202.172
+      - SERVERPORT=51820
+      - PEERS=pc1,pc2,phone1
+      - PEERDNS=auto
+      - INTERNAL_SUBNET=10.0.0.0
+    ports:
+      - 51820:51820/udp
+    volumes:
+      - type: bind
+        source: ./config/
+        target: /config/
+      - type: bind
+        source: /lib/modules
+        target: /lib/modules
+    restart: always
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+```
+
+## 10.
+There are several options here that need to be edited. The first is the timezone designoted by the line `TZ=`. 
+You need to put in your specific time zone, which you can find a link to [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+Next you need to edit the serverurl value in the line that starts with `SERVERURL=`. You can find the URL on the DigitalOcean dashboard.
+The final option you need to change is the user-config-files. You can specify the amount of user-files you want by either specifying an amount right next to the line beginning with `PEERS=`, or you can specify the user-config-files you'd like explictly like `pc1, pc1, phone1`
+
+## 11.
+Then, after saving that file, run these commands to start Wireguard:
+```
+  cd ~/wireguard/
+  docker-compose up -d
+```
+## 12.
+Finally, runt his command to pull up the QR codes and execution log of the Wireguard VPN:
+`docker-compose logs -f wireguard`
+Now we can connect to this wireguard server using our mobile phones if you install the Wireguard VPN application (it can be found on the iOS and Android appstore).
+I visited [this](https://ipleak.net) link to get my current ip address before I used the VPN:
+[image]
+
+Then I used used the wireguard mobile-app and scaned the QR code output of my terminal for the phone1 config file and was able to connect ot it and use it as my VPN. After using it my new ip on ipleak.net looked like this:
+[image]
+
+## 13.
+Next I used this wireguard VPN on my Mac. I simply installed the Wireguard 
