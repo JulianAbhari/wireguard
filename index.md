@@ -94,12 +94,14 @@ Finally, runt his command to pull up the QR codes and execution log of the Wireg
 `docker-compose logs -f wireguard`
 Now we can connect to this wireguard server using our mobile phones if you install the Wireguard VPN application (it can be found on the iOS and Android appstore).
 I visited [this](https://ipleak.net) link to get my current ip address before I used the VPN:
-[image]
+![MobileNoVPN](/MobileNoVPN.PNG)
 
 Then I used used the wireguard mobile-app and scaned the QR code output of my terminal for the phone1 config file and was able to connect ot it and use it as my VPN. After using it my new ip on ipleak.net looked like this:
-[image]
+![MobileYesVPN](/MobileYesVPN.PNG)
 
 ## 13.
 Next I used this wireguard VPN on my Mac. I simply installed the Wireguard app from the MacOS appstore and added the details in a new tunnel, which then asked if I wanted to use it as a VPN and I said yes.
 I got the details by scanning the Pc1 QR code using my phone's camera instead of the Wireguard app, and it took me to a link that had all of the necessary details to create the tunnel:
-[image]
+![VPNDetails](/VPNDetails.png)
+Here's what it looked like on my Mac when I had the VPN working:
+![MacVPN](/MacVPN.png)
